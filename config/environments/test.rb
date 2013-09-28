@@ -33,4 +33,7 @@ SampleApp::Application.configure do
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
+
+  # Speed up tesst by lowering bcrypt's cost fundtion.
+  ActiveModel::SecurePassword.min_cost = true
 end
