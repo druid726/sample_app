@@ -14,6 +14,7 @@ describe "UserPages" do
 
     it { should have_title('All users') }
     it { should have_content('All users') }
+  end
 
     describe "pagination" do
 
@@ -28,7 +29,6 @@ describe "UserPages" do
     		end
     	end
     end
-  end
 
   describe "delete links" do
 
@@ -50,21 +50,28 @@ describe "UserPages" do
   		it { should_not have_link('delete', href: user_path(admin)) }
   	end
   end
-end
-
+ 
   it "should list each user" do
     User.all.each do |user|
       expect(page).to have_selector('li', text: user.name)
     end
   end
-end
 
  describe "profile page" do
  	let(:user) { FactoryGirl.create(:user) }
+  let!(:m1) { FactoryGirl.create(:micropost, user: user, content: "Foo") }
+  let!(:m2) { FactoryGirl.create(:micropost, user: user, content: "Bar") }
+
   	before { visit user_path(user) }
 
   	it { should have_content(user.name) }
   	it { should have_title(user.name) }
+
+    describe "microposts" do
+      it { should have_content(m1.content) }
+      it { should have_content(m2.content) }
+      it { should have_content(user.microposts.count) }
+    end
   end
 
 	describe "signup page" do
@@ -84,7 +91,7 @@ end
 				it { should have_title('Sign up') }
 				it { should have_content('error') }
 			end
-		end
+    end
 
 		describe "with valid information" do
 			before do
@@ -92,10 +99,10 @@ end
         fill_in "Email",        with: "user@example.com"
         fill_in "Password",     with: "foobar"
         fill_in "Confirmation", with: "foobar"
-      end
+       end
 
       it "should create a user" do
-      	expect { click_button submit }. to change(User, :count).by(1)
+      	expect { click_button submit }.to change(User, :count).by(1)
       end
 
       describe "after saving the user" do
@@ -124,6 +131,7 @@ end
 
       it { should have_content('error') }
     end
+  end
 
 	  describe "with valid information" do
 	    let(:new_name)  { "New Name" }
@@ -148,12 +156,12 @@ end
       let(:params) do
         { user: { admin: true, password: user.password,
                   password_confirmation: user.password } }
-      end
-      before do
-        sign_in user, no_capybara: true
-        patch user_path(user), params
-      end
-      specify { expect(user.reload).not_to be_admin }
+      
+    before do
+      sign_in user, no_capybara: true
+      patch user_path(user), params
     end
+    specify { expect(user.reload).not_to be_admin }
   end
-end
+ end
+

@@ -49,15 +49,15 @@ describe "Authentication" do
           fill_in "Password", with: user.password
           click_button "Sign in"
         end
-
-        describe "after signing in" do
-
-          it "should render the desired protected page" do
-            expect(page).to have_title('Edit user')
-          end
-        end
       end
 
+    describe "after signing in" do
+
+      it "should render the desired protected page" do
+        expect(page).to have_title('Edit user')
+      end
+    end
+  
       describe "in the Users controller" do
 
         describe "visiting the edit page" do
@@ -74,8 +74,21 @@ describe "Authentication" do
       describe "visiting the user index" do
           before { visit users_path }
           it { should have_title('Sign in') }
-        end
       end
+    end
+
+      describe "in the Microposts controller" do
+
+        describe "submitting to the create action" do
+          before { post microposts_path }
+          specify { expect(response).to redirect_to(signin_path) }
+        end
+
+        describe "submitting to the destroy action" do
+          before { delete micropost_path(FactoryGirl.create(:micropost)) }
+          specify { expect(response).to redirect_to(signin_path) }
+        end
+      end   
 
   describe "as wrong user" do
       let(:user) { FactoryGirl.create(:user) }
@@ -87,7 +100,7 @@ describe "Authentication" do
         specify { expect(response.body).not_to match(full_title('Edit user')) }
         specify { expect(response).to redirect_to(root_url) }
       end
-
+  
       describe "submitting a PATCH request to the Users#update action" do
         before { patch user_path(wrong_user) }
         specify { expect(response).to redirect_to(root_url) }
